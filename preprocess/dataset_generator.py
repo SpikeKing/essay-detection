@@ -9,8 +9,6 @@ import os
 import sys
 from multiprocessing.pool import Pool
 
-import cv2
-
 p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if p not in sys.path:
     sys.path.append(p)
@@ -24,8 +22,31 @@ class DatasetGenerator(object):
     """
     数据集生成
     """
+
     def __init__(self):
         pass
+
+    @staticmethod
+    def get_file_url_format():
+        name_format_dict = {
+            "grade_4_essay_rotated": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/"
+                                     "zhengsheng.wcl/essay-library/datasets/20210416/grade_4_essay_rotated/{}.jpg",
+            "grade_5_essay_rotated": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/"
+                                     "zhengsheng.wcl/essay-library/datasets/20210416/grade_5_essay_rotated/{}.jpg",
+            "grade_6_essay_rotated": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/"
+                                     "zhengsheng.wcl/essay-library/datasets/20210416/grade_6_essay_rotated/{}.jpg",
+            "5-3语文-初中同步作文": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/"
+                            "datasets/20210426/essay_prelabel_x/"
+                            "5-3%E8%AF%AD%E6%96%87-%E5%88%9D%E4%B8%AD%E5%90%8C%E6%AD%A5%E4%BD%9C%E6%96%87/{}.jpg",
+            "小学生开心同步作文下册": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/"
+                           "datasets/20210426/essay_prelabel_x/"
+                           "%E5%B0%8F%E5%AD%A6%E7%94%9F%E5%BC%80%E5%BF%83%E5%90%8C%E6%AD%A5%E4%BD%9C%E6%96%87%E4%B8%8B%E5%86%8C/{}.jpg",
+            "小学语文同步作文下册": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/"
+                          "datasets/20210426/essay_prelabel_x/"
+                          "%E5%90%8C%E6%AD%A5%E4%BD%9C%E6%96%87/{}.jpg"
+
+        }
+        return name_format_dict
 
     @staticmethod
     def convert(iw, ih, box):
@@ -48,12 +69,12 @@ class DatasetGenerator(object):
 
     @staticmethod
     def generate_file(file_path, file_name, file_idx):
+        name_format_dict = DatasetGenerator.get_file_url_format()
         file_idx = str(file_idx).zfill(4)
         print('[Info] file_path: {}, file_name: {}, file_idx: {}'.format(file_path, file_name, file_idx))
 
         file_name_x = file_name.split('.')[0]
-        url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/datasets/20210416/" \
-                     + file_name_x + "/{}.jpg"
+        url_format = name_format_dict[file_name_x]
 
         out_dataset_dir = os.path.join(DATA_DIR, 'essay_ds_v1_1')
 
@@ -113,8 +134,8 @@ class DatasetGenerator(object):
 
         image_name_list = list(image_dict.keys())
         gap = len(image_name_list) // 10
-        image_train_list = image_name_list[:gap*9]
-        image_val_list = image_name_list[gap*9:]
+        image_train_list = image_name_list[:gap * 9]
+        image_val_list = image_name_list[gap * 9:]
         print('[Info] 训练: {}, 验证: {}'.format(len(image_train_list), len(image_val_list)))
 
         for idx, image_name in enumerate(image_train_list):
@@ -164,7 +185,7 @@ class DatasetGenerator(object):
         items = data_line.split(" ")
         items = [float(i) for i in items]
         x, y, w, h = items[1:]
-        x, y, w, h = x*iw, y*ih, w*iw, h*ih
+        x, y, w, h = x * iw, y * ih, w * iw, h * ih
         x_min, x_max = x - w // 2, x + w // 2
         y_min, y_max = y - h // 2, y + h // 2
         img_out = draw_box(img_bgr, [x_min, y_min, x_max, y_max], is_show=False)
@@ -178,7 +199,7 @@ class DatasetGenerator(object):
         n_check = 20
 
         paths_list, names_list = traverse_dir_files(images_dir)
-        paths_list, names_list = shuffle_two_list(paths_list, names_list )
+        paths_list, names_list = shuffle_two_list(paths_list, names_list)
         paths_list, names_list = paths_list[:n_check], names_list[:n_check]
         print('[Info] 检查样本数: {}'.format(len(paths_list)))
 
@@ -198,7 +219,7 @@ def process():
     dir_path = os.path.join(DATA_DIR, 'essay_ds_v1_1_json')
     paths_list, names_list = traverse_dir_files(dir_path)
 
-    pool = Pool(processes=20)
+    pool = Pool(processes=80)
 
     for file_idx, (path, name) in enumerate(zip(paths_list, names_list)):
         DatasetGenerator.generate_file(path, name, file_idx)
