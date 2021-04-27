@@ -222,9 +222,9 @@ def process():
     pool = Pool(processes=80)
 
     for file_idx, (path, name) in enumerate(zip(paths_list, names_list)):
-        DatasetGenerator.generate_file(path, name, file_idx)
+        # DatasetGenerator.generate_file(path, name, file_idx)
         print('[Info] path: {}'.format(path))
-        # pool.apply_async(DatasetGeneratorV2.generate_file, (path, file_idx))
+        pool.apply_async(DatasetGenerator.generate_file, (path, name, file_idx))
     pool.close()
     pool.join()
     print('[Info] 全部处理完成: {}'.format(dir_path))
