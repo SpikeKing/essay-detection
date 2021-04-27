@@ -55,7 +55,7 @@ class DatasetGenerator(object):
         url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/datasets/20210416/" \
                      + file_name_x + "/{}.jpg"
 
-        out_dataset_dir = os.path.join(DATA_DIR, 'essay_ds_v1')
+        out_dataset_dir = os.path.join(DATA_DIR, 'essay_ds_v1_1')
 
         out_images_dir = os.path.join(out_dataset_dir, 'images')
         out_images_train_dir = os.path.join(out_images_dir, 'train')
@@ -195,7 +195,7 @@ class DatasetGenerator(object):
 
 
 def process():
-    dir_path = os.path.join(DATA_DIR, 'essay_ds_v1_json')
+    dir_path = os.path.join(DATA_DIR, 'essay_ds_v1_1_json')
     paths_list, names_list = traverse_dir_files(dir_path)
 
     pool = Pool(processes=20)
