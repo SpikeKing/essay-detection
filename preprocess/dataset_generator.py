@@ -38,6 +38,9 @@ class DatasetGenerator(object):
             "5-3语文-初中同步作文": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/"
                             "datasets/20210426/essay_prelabel_x/"
                             "5-3%E8%AF%AD%E6%96%87-%E5%88%9D%E4%B8%AD%E5%90%8C%E6%AD%A5%E4%BD%9C%E6%96%87/{}.jpg",
+            "同步作文": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/"
+                    "datasets/20210426/essay_prelabel_x/%E5%90%8C%E6%AD%A5%E4%BD%9C%E6%96%87/"
+                    "{}.jpg",
             "小学生开心同步作文下册": "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/"
                            "datasets/20210426/essay_prelabel_x/"
                            "%E5%B0%8F%E5%AD%A6%E7%94%9F%E5%BC%80%E5%BF%83%E5%90%8C%E6%AD%A5%E4%BD%9C%E6%96%87%E4%B8%8B%E5%86%8C/{}.jpg",
@@ -76,7 +79,7 @@ class DatasetGenerator(object):
         file_name_x = file_name.split('.')[0]
         url_format = name_format_dict[file_name_x]
 
-        out_dataset_dir = os.path.join(DATA_DIR, 'essay_ds_v1_1')
+        out_dataset_dir = os.path.join(DATA_DIR, 'essay_ds_v1_2')
 
         out_images_dir = os.path.join(out_dataset_dir, 'images')
         out_images_train_dir = os.path.join(out_images_dir, 'train')
@@ -107,11 +110,7 @@ class DatasetGenerator(object):
             height = img['height']
             width = img['width']
 
-            # print('[Info] img: {}'.format(img))
-            # print('[Info] img_id: {}, file_name: {}'.format(img_id, image_name))
             id_name_dict[img_id] = [image_name, height, width]
-            # if idx == 20:
-            #     break
 
         annotations = data_dict["annotations"]
 
@@ -125,8 +124,6 @@ class DatasetGenerator(object):
                 continue
             bbox_yolo = DatasetGenerator.convert(iw, ih, bbox)
             bbox_yolo = [str(round(i, 6)) for i in bbox_yolo]
-            # print('[Info] image_id: {}, ih: {}, iw: {}, bbox: {}, bbox_yolo: {}'
-            #       .format(image_name, ih, iw, bbox, bbox_yolo))
 
             image_dict[image_name].append(" ".join(["0", *bbox_yolo]))
 
@@ -216,7 +213,7 @@ class DatasetGenerator(object):
 
 
 def process():
-    dir_path = os.path.join(DATA_DIR, 'essay_ds_v1_1_json')
+    dir_path = os.path.join(DATA_DIR, 'essay_ds_v1_2_json')
     paths_list, names_list = traverse_dir_files(dir_path)
 
     pool = Pool(processes=80)
