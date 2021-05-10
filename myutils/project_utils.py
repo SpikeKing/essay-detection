@@ -757,9 +757,10 @@ def download_url_txt(url, is_split=False):
     if response is not None and response.status_code == 200:
         text_data = response.content
         if not is_split:
-            return True, text_data
+            return True, text_data.decode()
         else:
-            return True, text_data.splitlines()
+            text_list = text_data.decode().splitlines()
+            return True, text_list
     else:
         return False, []
 

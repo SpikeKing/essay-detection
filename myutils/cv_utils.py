@@ -606,6 +606,7 @@ def rotate_img_with_bound(img_np, angle):
     import cv2
     import numpy as np
 
+    angle *= -1
     # grab the dimensions of the image and then determine the
     # center
     (h, w) = img_np.shape[:2]
@@ -624,7 +625,8 @@ def rotate_img_with_bound(img_np, angle):
     M[0, 2] += (nW / 2) - cX
     M[1, 2] += (nH / 2) - cY
     # perform the actual rotation and return the image
-    return cv2.warpAffine(img_np, M, (nW, nH))
+    img_rotated = cv2.warpAffine(img_np, M, (nW, nH))
+    return img_rotated, M
 
 
 def resize_img_fixed(img, x, is_height=True):
@@ -1010,6 +1012,51 @@ def sorted_boxes_by_row(boxes, img_bgr=None):
         num_row += 1
 
     return sorted_boxes, sorted_idxes, num_row
+
+
+def filer_boxes_by_size(boxes, r_thr=0.4):
+    """
+    根据是否重叠过滤包含在内部的框
+    """
+    if not boxes:
+        return boxes, [i for i in range(len(boxes))]
+
+    size_list = []
+    idx_list = []
+    for idx, box in enumerate(boxes):
+        size_list.append(get_box_size(box))
+        idx_list.append(idx)
+
+    def sort_three_list(list1, list2, list3, reverse=False):
+        list1, list2, list3 = (list(t) for t in zip(*sorted(zip(list1, list2, list3), reverse=reverse)))
+        return list1, list2, list3
+
+    size_list, sorted_idxes, sorted_boxes = \
+        sort_three_list(size_list, idx_list, boxes, reverse=True)
+
+    n_box = len(sorted_boxes)  # box的数量
+    flag_list = [True] * n_box
+
+    for i in range(n_box):
+        if not flag_list[i]:
+            continue
+        x_boxes = [sorted_boxes[i]]
+        for j in range(i + 1, n_box):
+            box1 = sorted_boxes[i]
+            box2 = sorted_boxes[j]
+            r_iou = min_iou(box1, box2)
+            if r_iou > r_thr:
+                flag_list[j] = False
+                x_boxes.append(box2)
+        sorted_boxes[i] = merge_boxes(x_boxes)
+
+    new_boxes, new_idxes = [], []
+    for i in range(n_box):
+        if flag_list[i]:
+            new_boxes.append(sorted_boxes[i])
+            new_idxes.append(sorted_idxes[i])
+
+    return new_boxes, new_idxes
 
 
 def main():

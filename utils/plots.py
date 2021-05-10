@@ -22,8 +22,8 @@ from utils.general import xywh2xyxy, xyxy2xywh
 from utils.metrics import fitness
 
 # Settings
-matplotlib.rc('font', **{'size': 11})
-matplotlib.use('Agg')  # for writing to files only
+# matplotlib.rc('font', **{'size': 11})
+# matplotlib.use('Agg')  # for writing to files only
 
 
 def color_list():
