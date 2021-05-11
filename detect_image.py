@@ -4,16 +4,17 @@
 Copyright (c) 2020. All rights reserved.
 Created by C. L. Wang on 28.12.20
 """
-import onnxruntime
+
 import torch
 
 from models.experimental import attempt_load
-from myutils.cv_utils import *
-from myutils.project_utils import *
-from root_dir import DATA_DIR
 from utils.datasets import letterbox
 from utils.general import check_img_size, non_max_suppression, scale_coords
 from utils.torch_utils import select_device
+
+from myutils.cv_utils import *
+from myutils.project_utils import *
+from root_dir import DATA_DIR
 
 
 class ImgDetector(object):
@@ -153,17 +154,7 @@ def filer_boxes_by_size(boxes, r_thr=0.5):
     return new_boxes
 
 
-def draw_problems_boxes(img_bgr, box_list):
-    box_list = filer_boxes_by_size(box_list)
-    sorted_boxes, sorted_idxes, num_row = sorted_boxes_by_col(box_list)
-    new_boxes = []
-    for col_boxes in sorted_boxes:
-        new_boxes += col_boxes
-    img_out = draw_box_list(img_bgr, new_boxes, is_text=False)
-    return img_out
-
-
-def main():
+def predict_one_img():
     name_x = "val_0004_000030.jpg"
     out_name_x = name_x.split('.')[0] + ".out.jpg"
     img_path = os.path.join(DATA_DIR, 'imgs', name_x)
@@ -173,6 +164,33 @@ def main():
     box_list = img_detector.detect_problems(img_bgr)
     # box_list = filer_boxes_by_size(box_list)
     draw_box_list(img_bgr, box_list, is_show=True, save_name=out_path)
+
+
+def predict_imgs_file():
+    file_path = os.path.join(DATA_DIR, 'xxx.txt')
+    urls = read_file(file_path)
+    all_box, n_sample = 0, 0
+    img_detector = ImgDetector()
+
+    for idx, url in enumerate(urls):
+        if idx == 20:
+            break
+        try:
+            _, img_bgr = download_url_img(url)
+        except:
+            continue
+        box_list = img_detector.detect_problems(img_bgr)
+        all_box += len(box_list)
+        print('[Info] n box: {}'.format(len(box_list)))
+        if box_list != 0:
+            n_sample += 1
+
+    n_avg = safe_div(all_box, n_sample)
+    print('[Info] n_avg: {}'.format(n_avg))
+
+
+def main():
+    predict_imgs_file()
 
 
 if __name__ == '__main__':
