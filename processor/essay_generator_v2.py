@@ -259,10 +259,10 @@ class EssayGeneratorV2(object):
         pool = Pool(processes=5)
 
         for idx, img_url in enumerate(url_list):
-            if idx == 20:
-                break
-            # EssayGeneratorV2.process_url(idx, img_url, self.out_folder, self.error_file)
-            pool.apply_async(EssayGeneratorV2.process_url, (idx, img_url, self.out_folder, self.error_file))
+            # if idx == 20:
+            #     break
+            EssayGeneratorV2.process_url(idx, img_url, self.out_folder, self.error_file)
+            # pool.apply_async(EssayGeneratorV2.process_url, (idx, img_url, self.out_folder, self.error_file))
 
         pool.close()
         pool.join()
