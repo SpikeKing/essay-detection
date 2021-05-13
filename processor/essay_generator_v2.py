@@ -30,7 +30,7 @@ class EssayGeneratorV2(object):
         mkdir_if_not_exist(self.out_folder)
         self.url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/" \
                           "datasets/20210513/essay_zip_files_v2_20210513/{}/{}/{}"
-        EssayGeneratorV2.img_detector = ImgDetector()
+        self.img_detector = ImgDetector()
 
     @staticmethod
     def filer_boxes_by_size(boxes, r_thr=0.5):
@@ -130,11 +130,10 @@ class EssayGeneratorV2(object):
         s_text += "\n\n"
         return s_text
 
-    @staticmethod
-    def segment_img(img_url):
+    def segment_img(self, img_url):
         print('[Info] url: {}'.format(img_url))
         _, img_bgr = download_url_img(img_url)
-        seg_boxes = EssayGeneratorV2.img_detector.detect_problems(img_bgr)
+        seg_boxes = self.img_detector.detect_problems(img_bgr)
         seg_boxes = EssayGeneratorV2.filer_boxes_by_size(seg_boxes)
 
         # 排序
@@ -221,13 +220,12 @@ class EssayGeneratorV2(object):
         ori_img_path = os.path.join(clz_dir, name_x + ".jpg")
         return out_img_path, out_txt_path, ori_img_path
 
-    @staticmethod
-    def process_url(idx, img_url, out_dir, error_file):
+    def process_url(self, idx, img_url, out_dir, error_file):
         """
         处理URL
         """
         try:
-            box_list, word_list, img_bgr = EssayGeneratorV2.segment_img(img_url)
+            box_list, word_list, img_bgr = self.segment_img(img_url)
             img_out = EssayGeneratorV2.draw_res_box(img_bgr, box_list)
             out_img_path, out_txt_path, ori_img_path = EssayGeneratorV2.parse_out_path(img_url, out_dir)
             cv2.imwrite(ori_img_path, img_bgr)  # 原始图像
@@ -239,10 +237,26 @@ class EssayGeneratorV2(object):
             write_line(error_file, img_url)
             print('[Info] 处理失败: {} - {}'.format(idx, img_url))
 
+    def get_processed_info(self, out_folder):
+        paths_list, names_list = traverse_dir_files(out_folder)
+        processed_urls = []
+        for path, name in zip(paths_list, names_list):
+            # print('[Info] path: {}'.format(path))
+            items = path.split('/')
+            img_name = items[-1]
+            clz_name = items[-2]
+            book_name = parse.quote(items[-3])
+            img_url = self.url_format.format(book_name, clz_name, img_name)
+            processed_urls.append(img_url)
+        return processed_urls
+
     def process(self):
         paths_list, names_list = traverse_dir_files(self.in_folder)
         print('[Info] 处理文件夹: {}'.format(self.in_folder))
         print('[Info] 文件数: {}'.format(len(paths_list)))
+
+        processed_urls = self.get_processed_info(self.out_folder)
+        print('[Info] 已处理: {}'.format(len(processed_urls)))
 
         url_list = []
         for path, name in zip(paths_list, names_list):
@@ -253,7 +267,10 @@ class EssayGeneratorV2(object):
             book_name = parse.quote(items[-3])
 
             img_url = self.url_format.format(book_name, clz_name, img_name)
+            if img_url in processed_urls:
+                continue
             url_list.append(img_url)
+
         print('[Info] img_url num: {}'.format(len(url_list)))
 
         pool = Pool(processes=5)
@@ -262,7 +279,7 @@ class EssayGeneratorV2(object):
             # if idx == 20:
             #     break
             print('[Info] ' + '-' * 50)
-            EssayGeneratorV2.process_url(idx, img_url, self.out_folder, self.error_file)
+            self.process_url(idx, img_url, self.out_folder, self.error_file)
             # pool.apply_async(EssayGeneratorV2.process_url, (idx, img_url, self.out_folder, self.error_file))
 
         pool.close()
