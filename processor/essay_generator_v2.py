@@ -264,6 +264,8 @@ class EssayGeneratorV2(object):
             items = path.split('/')
             img_name = items[-1]
             clz_name = items[-2]
+            if '高考' not in items[-3]:
+                continue
             book_name = parse.quote(items[-3])
 
             img_url = self.url_format.format(book_name, clz_name, img_name)
