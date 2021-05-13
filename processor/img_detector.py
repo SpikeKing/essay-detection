@@ -78,7 +78,7 @@ class ImgDetector(object):
 
         img = torch.from_numpy(img_bgr)
 
-        img = img.to(self.device, non_blocking=True)
+        img = img.to(self.device, non_blocking=False)
         img = img.half() if self.half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
 
