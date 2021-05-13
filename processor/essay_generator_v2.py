@@ -5,11 +5,12 @@ Copyright (c) 2021. All rights reserved.
 Created by C. L. Wang on 11.5.21
 """
 
+import copy
 import os
 import sys
-
-from multiprocessing.pool import Pool
 from urllib import parse
+
+import cv2
 
 p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if p not in sys.path:
@@ -17,7 +18,8 @@ if p not in sys.path:
 
 from processor.img_detector import ImgDetector
 from myutils.project_utils import *
-from myutils.cv_utils import *
+from myutils.cv_utils import min_iou, merge_boxes, rec2box, sorted_boxes_by_row, draw_box, draw_text, get_box_center, \
+    get_box_size
 from x_utils.vpf_utils import get_ocr_trt_dev_service
 from root_dir import DATA_DIR, ROOT_DIR
 
@@ -25,11 +27,14 @@ from root_dir import DATA_DIR, ROOT_DIR
 class EssayGeneratorV2(object):
     def __init__(self):
         self.in_folder = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_zip_files_v2_20210513')
+        # self.in_folder = os.path.join(DATA_DIR, 'essay')
         self.out_folder = os.path.join(DATA_DIR, 'essay-out')
         self.error_file = os.path.join(DATA_DIR, 'essay-error.txt')
         mkdir_if_not_exist(self.out_folder)
         self.url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/" \
                           "datasets/20210513/essay_zip_files_v2_20210513/{}/{}/{}"
+        # self.url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/" \
+        #                   "datasets/20210420/essay/{}/{}/{}"
         self.img_detector = ImgDetector()
 
     @staticmethod
@@ -118,7 +123,6 @@ class EssayGeneratorV2(object):
         sorted_words = filter_list_by_idxes(word_list, sorted_idxes)
         sorted_boxes = unfold_nested_list(sorted_boxes)
         sorted_words = unfold_nested_list(sorted_words)
-
         return sorted_boxes, sorted_words
 
     @staticmethod
@@ -139,12 +143,12 @@ class EssayGeneratorV2(object):
         # 排序
         seg_boxes, _, _ = sorted_boxes_by_row(seg_boxes)
         seg_boxes = unfold_nested_list(seg_boxes)
-        draw_box_list(img_bgr, seg_boxes, is_show=True, is_new=True)
+        # draw_box_list(img_bgr, seg_boxes, is_show=True, is_new=True)
         print('[Info] 段数: {}'.format(len(seg_boxes)))
 
         # 识别OCR
         word_boxes, word_texts = EssayGeneratorV2.call_ocr_and_parse(img_url)
-        draw_box_list(img_bgr, word_boxes, is_show=True, is_new=True)
+        # draw_box_list(img_bgr, word_boxes, is_show=True, is_new=True)
 
         seg_boxes_dict = collections.defaultdict(list)
         seg_texts_dict = collections.defaultdict(list)
@@ -187,8 +191,8 @@ class EssayGeneratorV2(object):
         res_boxes, res_idxes, _ = sorted_boxes_by_row(res_boxes)
         res_boxes = unfold_nested_list(res_boxes)
         res_idxes = unfold_nested_list(res_idxes)
-        res_texts = filter_list_by_idxes(res_texts, res_idxes)
 
+        res_texts = filter_list_by_idxes(res_texts, res_idxes)
         return res_boxes, res_texts, img_bgr
 
     @staticmethod
@@ -224,6 +228,7 @@ class EssayGeneratorV2(object):
         """
         处理URL
         """
+
         try:
             box_list, word_list, img_bgr = self.segment_img(img_url)
             img_out = EssayGeneratorV2.draw_res_box(img_bgr, box_list)
