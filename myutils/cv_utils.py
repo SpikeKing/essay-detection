@@ -30,7 +30,7 @@ def draw_line_len(img_bgr, start_p, v_length, v_arrow, is_new=True, is_show=Fals
         show_img_bgr(img_bgr, save_name=save_name)  # 显示眼睛
 
 
-def draw_text(img_bgr, text, org=(3, 20), color=(0, 0, 255)):
+def draw_text(img_bgr, text, org=(3, 20), color=(0, 0, 255), scale_x=1, thickness_x=1):
     """
     绘制文字，自动调整文字大小
     """
@@ -40,10 +40,14 @@ def draw_text(img_bgr, text, org=(3, 20), color=(0, 0, 255)):
     text = str(text)
 
     font = cv2.FONT_HERSHEY_SIMPLEX
+
     font_scale = m / 8000000
     font_scale = max(font_scale, 0.5)
+    font_scale *= scale_x
+
     thickness = m // 4000000
     thickness = max(thickness, 1)
+    thickness *= thickness_x
     # print('[Info] font_scale: {}, thickness: {}, max: {}, x: {}'.format(font_scale, thickness, m, h*w))
     lineType = 2
 

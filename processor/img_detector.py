@@ -190,7 +190,8 @@ def predict_imgs_file():
 
 
 def main():
-    predict_imgs_file()
+    predict_one_img()
+    # predict_imgs_file()
 
 
 if __name__ == '__main__':

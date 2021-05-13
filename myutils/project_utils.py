@@ -495,6 +495,24 @@ def read_file_gb2312(data_file, mode='more'):
         return list()
 
 
+def read_excel_file(file_path):
+    """
+    读取excel文件
+    """
+    import xlrd
+    print('[Info] excel file: {}'.format(file_path))
+    book = xlrd.open_workbook(file_path)
+    sheet = book.sheet_by_index(0)
+    data_lines = []
+    for row in range(0, sheet.nrows):
+        line_data = []
+        for column in range(0, sheet.ncols):
+            val = sheet.cell(row, column).value
+            line_data.append(val)
+        data_lines.append(line_data)
+    return data_lines  # 二维数组
+
+
 def find_word_position(original, word):
     """
     查询字符串的位置
