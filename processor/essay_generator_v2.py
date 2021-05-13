@@ -19,18 +19,18 @@ from processor.img_detector import ImgDetector
 from myutils.project_utils import *
 from myutils.cv_utils import *
 from x_utils.vpf_utils import get_ocr_trt_dev_service
-from root_dir import DATA_DIR
+from root_dir import DATA_DIR, ROOT_DIR
 
 
-class ImgSegment(object):
+class EssayGeneratorV2(object):
     def __init__(self):
-        self.in_folder = os.path.join(DATA_DIR, 'essay')
+        self.in_folder = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_zip_files_v2_20210513')
         self.out_folder = os.path.join(DATA_DIR, 'essay-out')
         self.error_file = os.path.join(DATA_DIR, 'essay-error.txt')
         mkdir_if_not_exist(self.out_folder)
         self.url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/" \
-                          "datasets/20210420/essay/{}/{}/{}"
-        ImgSegment.img_detector = ImgDetector()
+                          "datasets/20210513/essay_zip_files_v2_20210513/{}/{}/{}"
+        EssayGeneratorV2.img_detector = ImgDetector()
 
     @staticmethod
     def filer_boxes_by_size(boxes, r_thr=0.5):
@@ -104,12 +104,12 @@ class ImgSegment(object):
         """
         处理OCR结果
         """
-        words_info = ImgSegment.call_orc(url)
+        words_info = EssayGeneratorV2.call_orc(url)
         box_list, word_list = [], []
         for word_info in words_info:
             word = word_info['word']
             pos = word_info["pos"]
-            word_rec = ImgSegment.parse_pos(pos)
+            word_rec = EssayGeneratorV2.parse_pos(pos)
             word_box = rec2box(word_rec)
             box_list.append(word_box)
             word_list.append(word)
@@ -134,8 +134,8 @@ class ImgSegment(object):
     def segment_img(img_url):
         print('[Info] url: {}'.format(img_url))
         _, img_bgr = download_url_img(img_url)
-        seg_boxes = ImgSegment.img_detector.detect_problems(img_bgr)
-        seg_boxes = ImgSegment.filer_boxes_by_size(seg_boxes)
+        seg_boxes = EssayGeneratorV2.img_detector.detect_problems(img_bgr)
+        seg_boxes = EssayGeneratorV2.filer_boxes_by_size(seg_boxes)
 
         # 排序
         seg_boxes, _, _ = sorted_boxes_by_row(seg_boxes)
@@ -144,7 +144,7 @@ class ImgSegment(object):
         print('[Info] 段数: {}'.format(len(seg_boxes)))
 
         # 识别OCR
-        word_boxes, word_texts = ImgSegment.call_ocr_and_parse(img_url)
+        word_boxes, word_texts = EssayGeneratorV2.call_ocr_and_parse(img_url)
         draw_box_list(img_bgr, word_boxes, is_show=True, is_new=True)
 
         seg_boxes_dict = collections.defaultdict(list)
@@ -179,7 +179,7 @@ class ImgSegment(object):
             # large_box = merge_boxes(sorted_boxes)
             # seg_merged_boxes.append(large_box)
             seg_merged_boxes.append(seg_boxes[idx])  # 直接使用原始的box
-            seg_merged_texts.append(ImgSegment.merge_texts(sorted_texts))
+            seg_merged_texts.append(EssayGeneratorV2.merge_texts(sorted_texts))
 
         # draw_box_list(img_bgr, seg_merged_boxes, is_show=True, is_new=True)
 
@@ -227,9 +227,9 @@ class ImgSegment(object):
         处理URL
         """
         # try:
-        box_list, word_list, img_bgr = ImgSegment.segment_img(img_url)
-        img_out = ImgSegment.draw_res_box(img_bgr, box_list)
-        out_img_path, out_txt_path, ori_img_path = ImgSegment.parse_out_path(img_url, out_dir)
+        box_list, word_list, img_bgr = EssayGeneratorV2.segment_img(img_url)
+        img_out = EssayGeneratorV2.draw_res_box(img_bgr, box_list)
+        out_img_path, out_txt_path, ori_img_path = EssayGeneratorV2.parse_out_path(img_url, out_dir)
         cv2.imwrite(ori_img_path, img_bgr)  # 原始图像
         cv2.imwrite(out_img_path, img_out)  # 输出图像
         create_file(out_txt_path)  # 输出文本
@@ -261,8 +261,8 @@ class ImgSegment(object):
         for idx, img_url in enumerate(url_list):
             if idx == 20:
                 break
-            ImgSegment.process_url(idx, img_url, self.out_folder, self.error_file)
-            # pool.apply_async(EssayProcessor.process_url, (idx, img_url, self.out_folder, self.error_file))
+            # EssayGeneratorV2.process_url(idx, img_url, self.out_folder, self.error_file)
+            pool.apply_async(EssayGeneratorV2.process_url, (idx, img_url, self.out_folder, self.error_file))
 
         pool.close()
         pool.join()
@@ -270,8 +270,8 @@ class ImgSegment(object):
 
 
 def main():
-    img_segment = ImgSegment()
-    img_segment.process()
+    eg2 = EssayGeneratorV2()
+    eg2.process()
 
 
 if __name__ == '__main__':
