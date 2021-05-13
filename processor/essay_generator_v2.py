@@ -261,6 +261,7 @@ class EssayGeneratorV2(object):
         for idx, img_url in enumerate(url_list):
             # if idx == 20:
             #     break
+            print('[Info] ' + '-' * 50)
             EssayGeneratorV2.process_url(idx, img_url, self.out_folder, self.error_file)
             # pool.apply_async(EssayGeneratorV2.process_url, (idx, img_url, self.out_folder, self.error_file))
 
