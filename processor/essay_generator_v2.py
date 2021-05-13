@@ -226,18 +226,18 @@ class EssayGeneratorV2(object):
         """
         处理URL
         """
-        # try:
-        box_list, word_list, img_bgr = EssayGeneratorV2.segment_img(img_url)
-        img_out = EssayGeneratorV2.draw_res_box(img_bgr, box_list)
-        out_img_path, out_txt_path, ori_img_path = EssayGeneratorV2.parse_out_path(img_url, out_dir)
-        cv2.imwrite(ori_img_path, img_bgr)  # 原始图像
-        cv2.imwrite(out_img_path, img_out)  # 输出图像
-        create_file(out_txt_path)  # 输出文本
-        write_list_to_file(out_txt_path, word_list)
-        print('[Info] 处理完成: {} - {}'.format(idx, img_url))
-        # except Exception as e:
-        #     write_line(error_file, img_url)
-        #     print('[Info] 处理失败: {} - {}'.format(idx, img_url))
+        try:
+            box_list, word_list, img_bgr = EssayGeneratorV2.segment_img(img_url)
+            img_out = EssayGeneratorV2.draw_res_box(img_bgr, box_list)
+            out_img_path, out_txt_path, ori_img_path = EssayGeneratorV2.parse_out_path(img_url, out_dir)
+            cv2.imwrite(ori_img_path, img_bgr)  # 原始图像
+            cv2.imwrite(out_img_path, img_out)  # 输出图像
+            create_file(out_txt_path)  # 输出文本
+            write_list_to_file(out_txt_path, word_list)
+            print('[Info] 处理完成: {} - {}'.format(idx, img_url))
+        except Exception as e:
+            write_line(error_file, img_url)
+            print('[Info] 处理失败: {} - {}'.format(idx, img_url))
 
     def process(self):
         paths_list, names_list = traverse_dir_files(self.in_folder)
