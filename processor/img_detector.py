@@ -95,8 +95,7 @@ class ImgDetector(object):
         """
         img, x_shape = self.preprocess_data(img_bgr)  # 预处理数据
 
-        with torch.no_grad():
-            pred, train_out = self.model(img, augment=False)  # inference and training outputs
+        pred, train_out = self.model(img, augment=False)  # inference and training outputs
 
         pred = non_max_suppression(pred, self.conf_thres, self.iou_thres, labels=[], multi_label=True, agnostic=False)  # NMS后处理
 
