@@ -275,7 +275,7 @@ class EssayGeneratorV2(object):
 
         print('[Info] img_url num: {}'.format(len(url_list)))
 
-        pool = Pool(processes=5)
+        # pool = Pool(processes=5)
 
         for idx, img_url in enumerate(url_list):
             # if idx == 20:
@@ -284,8 +284,8 @@ class EssayGeneratorV2(object):
             self.process_url(idx, img_url, self.out_folder, self.error_file)
             # pool.apply_async(EssayGeneratorV2.process_url, (idx, img_url, self.out_folder, self.error_file))
 
-        pool.close()
-        pool.join()
+        # pool.close()
+        # pool.join()
         print('[Info] 全部处理完成: {}'.format(self.out_folder))
 
 
