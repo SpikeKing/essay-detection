@@ -29,7 +29,8 @@ class EssayGeneratorV2(object):
         self.in_folder = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_zip_files_v3_20210520')
         # self.in_folder = os.path.join(DATA_DIR, 'essay')
         self.out_folder = os.path.join(DATA_DIR, 'essay-out-{}'.format(get_current_day_str()))
-        self.error_file = os.path.join(DATA_DIR, 'essay-error.txt')
+        self.error_file = os.path.join(DATA_DIR, 'essay-error-{}.txt'.format(get_current_day_str()))
+        create_file(self.error_file)
         mkdir_if_not_exist(self.out_folder)
         self.url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/" \
                           "datasets/20210520/{}/{}/{}"
@@ -299,7 +300,7 @@ class EssayGeneratorV2(object):
             end_idx = min(idx + gap, len(url_list) -1)
             sub_list.append(url_list[idx:end_idx])
 
-        pool = Pool(processes=10)
+        pool = Pool(processes=3)
         for idx, sub_x in enumerate(sub_list):
             print('[Info] ' + '-' * 50)
             # EssayGeneratorV2.process_urls(sub_x, self.out_folder, self.error_file)
