@@ -33,7 +33,7 @@ class EssayXlsxProcessor(object):
             if idx == 0:
                 continue
             url = data_line[20]
-            name = data_line[6].replace('/', '_')
+            name = data_line[6].replace('/', '_').replace(' ', '_')
             print('[Info] url: {}'.format(url))
             print('[Info] name: {}'.format(name))
             out_download_line = "wget -O {} {}".format(name+".zip", url)
