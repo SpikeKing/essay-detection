@@ -299,7 +299,7 @@ class EssayGeneratorV2(object):
             end_idx = min(idx + gap, len(url_list) -1)
             sub_list.append(url_list[idx:end_idx])
 
-        pool = Pool(processes=10)
+        pool = Pool(processes=3)
         for sub_x in enumerate(sub_list):
             print('[Info] ' + '-' * 50)
             # EssayGeneratorV2.process_urls(sub_x, self.out_folder, self.error_file)
