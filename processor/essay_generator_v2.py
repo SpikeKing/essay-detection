@@ -294,7 +294,7 @@ class EssayGeneratorV2(object):
         #
 
         sub_list = []
-        gap = 10000
+        gap = 1000
         for idx in range(0, len(url_list), gap):
             start_idx = idx
             end_idx = min(idx + gap, len(url_list) -1)
