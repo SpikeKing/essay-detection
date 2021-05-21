@@ -10,6 +10,10 @@ import sys
 import cv2
 from urllib import parse
 
+p = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if p not in sys.path:
+    sys.path.append(p)
+
 from myutils.project_utils import *
 from root_dir import DATA_DIR, ROOT_DIR
 from myutils.cv_utils import rotate_img_for_4angle
