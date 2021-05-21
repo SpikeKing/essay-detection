@@ -78,8 +78,9 @@ class EssayXlsxProcessor(object):
             print('[Info] 处理开始: {}'.format(book_name))
             folder_path = os.path.join(book_dir, book_name)
             paths_list, names_list = traverse_dir_files(folder_path)
+            print('[Info] 文件数: {}'.format(len(paths_list)))
             for path in paths_list:
-                img_bgr = cv2.imread(paths_list)
+                img_bgr = cv2.imread(path)
                 img_bgr = rotate_img_for_4angle(img_bgr, 180)
                 cv2.imwrite(path, img_bgr)
 
