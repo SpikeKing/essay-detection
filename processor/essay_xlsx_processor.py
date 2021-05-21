@@ -27,11 +27,12 @@ class EssayXlsxProcessor(object):
         self.out_download_file = os.path.join(DATA_DIR, 'DHSD-ZW-003.download.txt')
         self.out_unzip_file = os.path.join(DATA_DIR, 'DHSD-ZW-003.unzip.txt')
         self.out_zip_file = os.path.join(DATA_DIR, 'DHSD-ZW-003.zip.txt')
+
+    def process(self):
         create_file(self.out_download_file)
         create_file(self.out_unzip_file)
         create_file(self.out_zip_file)
 
-    def process(self):
         data_lines = read_excel_file(self.file_path)
 
         out_download_lines, out_unzip_lines, out_zip_lines = [], [], []  # 下载数据列表
@@ -80,8 +81,10 @@ class EssayXlsxProcessor(object):
             paths_list, names_list = traverse_dir_files(folder_path)
             print('[Info] 文件数: {}'.format(len(paths_list)))
             for path in paths_list:
+                print('\t\t[Info] path: {}'.format(path))
                 img_bgr = cv2.imread(path)
                 img_bgr = rotate_img_for_4angle(img_bgr, 180)
+                os.remove(path)
                 cv2.imwrite(path, img_bgr)
 
             print('[Info] 处理完成: {}'.format(book_name))
