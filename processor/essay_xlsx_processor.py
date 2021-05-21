@@ -7,10 +7,12 @@ Created by C. L. Wang on 12.5.21
 
 import os
 import sys
+import cv2
 from urllib import parse
 
 from myutils.project_utils import *
-from root_dir import DATA_DIR
+from root_dir import DATA_DIR, ROOT_DIR
+from myutils.cv_utils import rotate_img_for_4angle
 from x_utils.oss_utils import traverse_oss_folder
 
 
@@ -52,9 +54,9 @@ class EssayXlsxProcessor(object):
         print('[Info] 写入完成: {}'.format(self.out_download_file))
 
     def generate_res_xslx(self):
-        url_list = traverse_oss_folder("zhengsheng.wcl/essay-library/datasets/20210513/essay-v2-zip-out/", ext='zip')
+        url_list = traverse_oss_folder("zhengsheng.wcl/essay-library/datasets/20210521/essay-v3-zip-out/", ext='zip')
         print('[Info] 文件数: {}'.format(len(url_list)))
-        out_path = os.path.join(DATA_DIR, 'essay-v2-out.xlsx')
+        out_path = os.path.join(DATA_DIR, 'essay-v3-out.xlsx')
 
         excel_list = []
         for url in url_list:
@@ -65,11 +67,27 @@ class EssayXlsxProcessor(object):
         write_list_to_excel(out_path, ["书名", "url"], excel_list)
         print('[Info] 写入完成: {}'.format(out_path))
 
+    def rotate_books(self):
+        book_dir = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_zip_files_v3_1_20210521')
+        book_list = ["2020高考满分作文_语文（附加小册）", "最新五年高考满分作文精品_PLUS版_2021提分专用"]
+        for book_name in book_list:
+            print('[Info] 处理开始: {}'.format(book_name))
+            folder_path = os.path.join(book_dir, book_name)
+            paths_list, names_list = traverse_dir_files(folder_path)
+            for path in paths_list:
+                img_bgr = cv2.imread(paths_list)
+                img_bgr = rotate_img_for_4angle(img_bgr, 180)
+                cv2.imwrite(path, img_bgr)
+
+            print('[Info] 处理完成: {}'.format(book_name))
+        print('[Info] 全部处理完成!')
+
 
 def main():
     ex_processor = EssayXlsxProcessor()
-    ex_processor.process()
+    # ex_processor.process()
     # ex_processor.generate_res_xslx()
+    ex_processor.rotate_books()
 
 
 if __name__ == '__main__':
