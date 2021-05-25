@@ -22,24 +22,33 @@ from x_utils.oss_utils import traverse_oss_folder
 
 class EssayXlsxProcessor(object):
     def __init__(self):
-        # self.file_path = os.path.join(DATA_DIR, "DHSD-ZW-003.xlsx")
-        self.file_path = os.path.join(DATA_DIR, "DHSD-ZW-003.xls")
-        self.out_download_file = os.path.join(DATA_DIR, 'DHSD-ZW-003.download.txt')
-        self.out_unzip_file = os.path.join(DATA_DIR, 'DHSD-ZW-003.unzip.txt')
-        self.out_zip_file = os.path.join(DATA_DIR, 'DHSD-ZW-003.zip.txt')
+        # file_name = "DHSD-ZW-003"
+        file_name = "2021.5.25"
+
+        self.file_path = os.path.join(DATA_DIR, "{}.xls".format(file_name))
+        self.out_download_file = os.path.join(DATA_DIR, '{}.download.txt'.format(file_name))
+        self.out_unzip_file = os.path.join(DATA_DIR, '{}.unzip.txt'.format(file_name))
+        self.out_zip_file = os.path.join(DATA_DIR, '{}.zip.txt'.format(file_name))
 
     def process(self):
+        try:
+            data_lines = read_excel_file(self.file_path)
+        except Exception as e:
+            print('[Exception] e: {}'.format(e))
+            print('[Exception] 读取excel失败，读取html，{}'.format(self.file_path))
+            data_lines = read_html_table(self.file_path)
+
         create_file(self.out_download_file)
         create_file(self.out_unzip_file)
         create_file(self.out_zip_file)
-
-        data_lines = read_excel_file(self.file_path)
 
         out_download_lines, out_unzip_lines, out_zip_lines = [], [], []  # 下载数据列表
         for idx, data_line in enumerate(data_lines):
             if idx == 0:
                 continue
             url = data_line[20]
+            if not url:
+                continue
             name = data_line[6].replace('/', '_').replace(' ', '_')
             print('[Info] url: {}'.format(url))
             print('[Info] name: {}'.format(name))
@@ -59,9 +68,9 @@ class EssayXlsxProcessor(object):
         print('[Info] 写入完成: {}'.format(self.out_download_file))
 
     def generate_res_xslx(self):
-        url_list = traverse_oss_folder("zhengsheng.wcl/essay-library/datasets/20210521/essay-v3-zip-out/", ext='zip')
+        url_list = traverse_oss_folder("zhengsheng.wcl/essay-library/datasets/20210521/essay-v3_1-zip-out/", ext='zip')
         print('[Info] 文件数: {}'.format(len(url_list)))
-        out_path = os.path.join(DATA_DIR, 'essay-v3-out.xlsx')
+        out_path = os.path.join(DATA_DIR, 'essay-v3_1-out.xlsx')
 
         excel_list = []
         for url in url_list:
@@ -73,8 +82,8 @@ class EssayXlsxProcessor(object):
         print('[Info] 写入完成: {}'.format(out_path))
 
     def rotate_books(self):
-        book_dir = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_zip_files_v3_1_20210521')
-        book_list = ["2020高考满分作文_语文（附加小册）", "最新五年高考满分作文精品_PLUS版_2021提分专用"]
+        book_dir = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_data', 'essay_zip_files_v3_1_20210521')
+        book_list = ["新课标大语文高考满分作文2019特快专递", "2017高考满分作文精选"]
         for book_name in book_list:
             print('[Info] 处理开始: {}'.format(book_name))
             folder_path = os.path.join(book_dir, book_name)

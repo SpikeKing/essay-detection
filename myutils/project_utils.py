@@ -10,19 +10,19 @@ Created by C. L. Wang on 2018/7/9
 # from __future__ import absolute_import
 
 import collections
-import os
 import io
-from io import open
+import os
 import random
 import shutil
 import sys
 import time
-import numpy as np
 from datetime import timedelta, datetime
-
+from io import open
 # reload(sys)  # 重置系统参数
 # sys.setdefaultencoding('utf8')  # 避免编码错误
 from itertools import chain
+
+import numpy as np
 
 p = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 if p not in sys.path:
@@ -511,6 +511,25 @@ def read_excel_file(file_path):
             line_data.append(val)
         data_lines.append(line_data)
     return data_lines  # 二维数组
+
+
+def read_html_table(file_path):
+    """
+    读取html表格
+    """
+    import pandas as pd
+    pd_table = pd.read_html(file_path)
+    df = pd_table[0]
+    # num_col = df.shape[1]
+    # num_row = df.shape[0]
+    df_data = df.values.tolist()
+    df_data = df_data[1:]
+    for r_idx, row in enumerate(df_data):
+        for c_idx, value in enumerate(row):
+            # 判断nan，参考https://stackoverflow.com/questions/944700/how-can-i-check-for-nan-values
+            if value != value:
+                df_data[r_idx][c_idx] = ""
+    return df_data
 
 
 def find_word_position(original, word):
