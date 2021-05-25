@@ -103,8 +103,8 @@ class EssayXlsxProcessor(object):
 def main():
     ex_processor = EssayXlsxProcessor()
     # ex_processor.process()
-    ex_processor.generate_res_xslx()
-    # ex_processor.rotate_books()
+    # ex_processor.generate_res_xslx()
+    ex_processor.rotate_books()
 
 
 if __name__ == '__main__':
