@@ -82,7 +82,7 @@ class EssayXlsxProcessor(object):
         print('[Info] 写入完成: {}'.format(out_path))
 
     def rotate_books(self):
-        book_dir = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_data', 'essay_zip_files_v3_1_20210521')
+        book_dir = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_data', 'essay_zip_files_v3_2_20210525')
         book_list = ["新课标大语文高考满分作文2019特快专递", "2017高考满分作文精选"]
         for book_name in book_list:
             print('[Info] 处理开始: {}'.format(book_name))
