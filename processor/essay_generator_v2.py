@@ -26,14 +26,14 @@ from root_dir import DATA_DIR, ROOT_DIR
 
 class EssayGeneratorV2(object):
     def __init__(self):
-        self.in_folder = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_zip_files_v3_1_20210521')
+        self.in_folder = os.path.join(ROOT_DIR, '..', 'datasets', 'essay_data', 'essay_zip_files_v3_2_20210525')
         # self.in_folder = os.path.join(DATA_DIR, 'essay')
         self.out_folder = os.path.join(DATA_DIR, 'essay-out-{}'.format(get_current_day_str()))
         self.error_file = os.path.join(DATA_DIR, 'essay-error-{}.txt'.format(get_current_day_str()))
         create_file(self.error_file)
         mkdir_if_not_exist(self.out_folder)
         self.url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/" \
-                          "datasets/20210521/essay_zip_files_v3_1_20210521/{}/{}/{}"
+                          "datasets/20210525/essay_zip_files_v3_2_20210525/{}/{}/{}"
         # self.url_format = "https://sm-transfer.oss-cn-hangzhou.aliyuncs.com/zhengsheng.wcl/essay-library/" \
         #                   "datasets/20210420/essay/{}/{}/{}"
 
